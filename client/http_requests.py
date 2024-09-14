@@ -5,6 +5,19 @@ import io
 import json
 
 
+def request_check_coonection(root_url: str):
+    url = root_url + '/check_connection'
+
+    # GET リクエストを送信
+    response = requests.get(url)
+
+    # レスポンスの確認
+    if response.status_code == 200:
+        print("Response JSON:", response.json())
+    else:
+        print(f"Failed to check connection. Status code: {response.status_code}")
+
+
 def request_image_data(root_url: str, tgt_img_path: str):
     # POST リクエストを送信する URL
     url = root_url + '/image_data'
@@ -55,17 +68,21 @@ def request_get_image_file_names(root_url: str, folder_name: str):
     # レスポンスの確認
     if response.status_code == 200:
         # print("Response JSON:", response.json())
-        return response.json()['file_path_list']
+        # return response.json()['file_path_list']
+        return response.json()
     else:
         print(f"Failed to get image file names. Status code: {response.status_code}")
 
 
-def request_save_annotations(root_url: str, save_results: dict):
+def request_save_annotations(root_url: str, save_results: dict, folder_name: str):
     url = root_url + '/save_annotations'
     # data = {
     #     'image_path': 'apples/vertical_flip_Screen Shot 2018-06-07 at 2.57.05 PM.png'
     # }
-    data = save_results
+    data = {
+        'save_results': save_results,
+        "folder_name": folder_name
+    }
 
     # POST リクエストを送信
     response = requests.post(url, headers={'Content-Type': 'application/json'}, data=json.dumps(data))
