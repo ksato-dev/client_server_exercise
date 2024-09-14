@@ -20,21 +20,44 @@ if 'save_results' not in st.session_state:
 if 'load_state' not in st.session_state:
     st.session_state['load_state'] = 'initial'
 
+if 'folder_name' not in st.session_state:
+    st.session_state['folder_name'] = None
+
+
 # 画像フォルダの読み込み関数
 def load_images(folder_name):
     if not folder_name:
         st.warning('画像フォルダ名を入力してください。')
     else:
         # サーバーから画像ファイル名のリストを取得
-        st.session_state['image_paths'] = request_get_image_file_names(ROOT_URL, folder_name)
+        # st.session_state['image_paths'] = request_get_image_file_names(ROOT_URL, folder_name)
+        response_json = request_get_image_file_names(ROOT_URL, folder_name)
+        st.session_state['image_paths'] = response_json['file_path_list']
         if not st.session_state['image_paths']:
             st.warning('画像が見つかりませんでした。')
         else:
             st.session_state['image_index'] = 0
             st.session_state['save_results'] = {}
             # save_resultsを初期化
-            for img_id, img_path in enumerate(st.session_state['image_paths']):
-                st.session_state['save_results'][img_id] = [img_path, 'Unknown']
+            # print(response_json['save_results'])
+            if not any(response_json['save_results']):
+            # if True:
+                for img_id, img_path in enumerate(st.session_state['image_paths']):
+                    st.session_state['save_results'][img_id] = [img_path, 'Unknown']
+            else:
+                # print("any")
+                # print("=====")
+                for img_id in response_json['save_results'].keys():
+                    st.session_state['save_results'][int(img_id)] = response_json['save_results'][img_id]
+                    # print(response_json['save_results'][img_id])
+                    # print(response_json['save_results'][img_id])
+                # print("=====")
+            print("=====")
+            print("=====")
+            import pprint
+            pprint.pprint(st.session_state['save_results'])
+            print("=====")
+            print("=====")
             st.success('画像を読み込みました')
             st.session_state['load_state'] = 'loaded'
 
@@ -49,7 +72,7 @@ def prev_image():
 # ラベルを保存する関数
 def save_labels():
     # サーバーにアノテーションを保存
-    request_save_annotations(ROOT_URL, st.session_state['save_results'])
+    request_save_annotations(ROOT_URL, st.session_state['save_results'], st.session_state['folder_name'])
     st.success('ラベルを保存しました')
 
 # ラベルが変更されたときの処理
@@ -70,9 +93,9 @@ if st.button('読み込み'):
 
 # 読み込み状態に応じた処理
 if st.session_state['load_state'] == 'waiting_for_input':
-    folder_name = st.text_input('フォルダ名を入力してください', key='folder_input')
+    st.session_state['folder_name'] = st.text_input('フォルダ名を入力してください', key='folder_input')
     if st.button('フォルダを読み込む'):
-        load_images(folder_name)
+        load_images(st.session_state['folder_name'])
 
 # 画像が読み込まれている場合
 if st.session_state['load_state'] == 'loaded' and st.session_state['image_paths']:
