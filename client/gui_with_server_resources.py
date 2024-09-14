@@ -49,15 +49,6 @@ def load_images(folder_name):
                 # print("=====")
                 for img_id in response_json['save_results'].keys():
                     st.session_state['save_results'][int(img_id)] = response_json['save_results'][img_id]
-                    # print(response_json['save_results'][img_id])
-                    # print(response_json['save_results'][img_id])
-                # print("=====")
-            print("=====")
-            print("=====")
-            import pprint
-            pprint.pprint(st.session_state['save_results'])
-            print("=====")
-            print("=====")
             st.success('画像を読み込みました')
             st.session_state['load_state'] = 'loaded'
 
