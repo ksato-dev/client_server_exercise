@@ -4,7 +4,11 @@ app = Flask(__name__)
 
 @app.route('/', methods=['GET'])
 def hello_world():
-    return 'Hello, World!'
+    response = {
+        'message': "Hello, World",
+        'status': 'success'
+    }
+    return jsonify(response)
 
 @app.route('/message', methods=['POST'])
 def receive_message():
